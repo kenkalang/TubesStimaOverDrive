@@ -46,13 +46,48 @@ public class Bot {
         List<Object> leftblocks = getBlocksOnLeft(myCar.position.lane, myCar.position.block, gameState);
         List<Object> nextBlocks = frontblocks.subList(0,1);
 
-        //Fix first if too damaged to move
-        if(myCar.damage == 4 || myCar.speed <= 6) {
+        //fix first to move
+        if (myCar.damage >=2){
             return FIX;
         }
+        else {
+            //cek posisi musuh
+            if (opponent.position.block > myCar.position.block - 5 && opponent.position.block < myCar.position.block + 20) {
+                if (opponent.position.block > myCar.position.block) {
+                    if (hasPowerUp(PowerUps.EMP, myCar.powerups)) {
+                        return EMP;
+                    } else {
+                        if (hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
+                            return BOOST;
+                        } else {
+                            if (frontblocks.contains(Terrain.MUD) || nextBlocks.contains(Terrain.WALL) || nextBlocks.contains(Terrain.OIL_SPILL)) {
+                                if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
+                                    return LIZARD;
+                                } else {
+                                    if (rightblocks.contains(Terrain.MUD) || rightblocks.contains(Terrain.WALL) || rightblocks.contains(Terrain.OIL_SPILL)) {
+                                        return TURN_LEFT;
+                                    } else {
+                                        return TURN_RIGHT;
+                                    }
+                                }
+                            } else {
+                                //kalo kurang speed accelerate
+                                if (myCar.speed < Bot.maxSpeed) {
+                                    return ACCELERATE;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (opponent.position.block < myCar.position.block && hasPowerUp(PowerUps.OIL, myCar.powerups)) {
+                        return OIL;
+                    } else
+                        return DO_NOTHING;
+                }
+            }
+        }
 
-        //Basic fix logic
-        if(myCar.damage >= 2) {
+        if (myCar.speed == 0){
             return FIX;
         }
 
@@ -68,44 +103,6 @@ public class Bot {
                 else {
                     return TURN_RIGHT;
                 }
-            }
-        }
-        //cek posisi musuh
-        if (opponent.position.block > myCar.position.block - 5 && opponent.position.block < myCar.position.block + 20) {
-            if (opponent.position.block > myCar.position.block) {
-                if (hasPowerUp(PowerUps.EMP, myCar.powerups)) {
-                    return EMP;
-                }
-                else {
-                    if (hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
-                        return BOOST;
-                    } else {
-                        if (frontblocks.contains(Terrain.MUD) || nextBlocks.contains(Terrain.WALL) || nextBlocks.contains(Terrain.OIL_SPILL)) {
-                            if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
-                                return LIZARD;
-                            } else {
-                                if (rightblocks.contains(Terrain.MUD) || rightblocks.contains(Terrain.WALL) || rightblocks.contains(Terrain.OIL_SPILL)) {
-                                    return TURN_LEFT;
-                                } else {
-                                    return TURN_RIGHT;
-                                }
-                            }
-                        }
-                        else{
-                            //kalo kurang speed accelerate
-                            if (myCar.speed < Bot.maxSpeed ){
-                                return ACCELERATE;
-                            }
-                        }
-                    }
-                }
-            }
-            else{
-                if (opponent.position.block < myCar.position.block && hasPowerUp(PowerUps.OIL, myCar.powerups)) {
-                    return OIL;
-                }
-                else
-                    return DO_NOTHING;
             }
         }
         //kalo kurang speed accelerate
@@ -124,8 +121,6 @@ public class Bot {
                 return EMP;
             }
         }
-
-
         return ACCELERATE;
     }
 
